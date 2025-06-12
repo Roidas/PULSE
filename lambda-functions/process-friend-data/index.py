@@ -88,7 +88,7 @@ def lambda_handler(event, context):
         time.sleep(min(countdown_before_notify, 10))  # sleep max 10 sec for demo safety (Lambda timeout protection)
 
         # After countdown → Notify other friends
-        message_to_others = f'🚨 ALERT: Friend {friend_id} is more than {DEFAULT_MAX_DISTANCE_APART} meters apart after {countdown_before_notify} seconds.\n'
+        message_to_others = f'🚨 ALERT: Friend {friend_id} is more than {max_distance_apart} meters apart after {countdown_before_notify} seconds.\n'
         message_to_others += f'GPS: {gps}\nPlease check on them.'
 
         sns.publish(
