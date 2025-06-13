@@ -39,7 +39,7 @@ def lambda_handler(event, context):
         max_heart_rate = preferences.get('maxHeartRate', DEFAULT_MAX_HEART_RATE)
         min_heart_rate = preferences.get('minHeartRate', DEFAULT_MIN_HEART_RATE)
         max_stress_level = preferences.get('maxStressLevel', DEFAULT_MAX_STRESS_LEVEL)
-        print(f"Loaded preferences for {friend_id}: heartRateThreshold={heart_rate_threshold}, stressLevelThreshold={stress_level_threshold}")
+        print(f"Loaded preferences for {friend_id}: maxHeartRate={max_heart_rate}, minHeartRate={min_heart_rate}, maxStressLevel={max_stress_level}")
 
     except Exception as e:
         print(f"Error loading preferences for {friend_id}: {str(e)}")
