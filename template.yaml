@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Friend Safety App - PULSE - Lambda + API Gateway
+
+Globals:
+  Function:
+    Runtime: python3.9
+    Timeout: 30
+    MemorySize: 128
+
+Resources:
+
+  SetUserPreferencesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: set-user-preferences
+      Handler: index.lambda_handler
+      CodeUri: lambda-functions/set-user-preferences/
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /set-user-preferences
+            Method: POST
+
+  ProcessFriendDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: process-friend-data
+      Handler: index.lambda_handler
+      CodeUri: lambda-functions/process-friend-data/
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /process-friend-data
+            Method: POST
+
+  ProcessWearableDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: process-wearable-data
+      Handler: index.lambda_handler
+      CodeUri: lambda-functions/process-wearable-data/
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /process-wearable-data
+            Method: POST
