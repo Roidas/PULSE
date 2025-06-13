@@ -13,8 +13,9 @@ PREFERENCES_TABLE_NAME = os.environ.get('PREFERENCES_TABLE_NAME', 'UserPreferenc
 SNS_TOPIC_ARN = os.environ.get('SNS_TOPIC_ARN')
 
 # Default thresholds
-DEFAULT_HEART_RATE_THRESHOLD = 150
-DEFAULT_STRESS_LEVEL_THRESHOLD = 80
+DEFAULT_MAX_HEART_RATE = 150
+DEFAULT_MIN_HEART_RATE = 50
+DEFAULT_MAX_STRESS_LEVEL = 80
 
 # Main entry point
 def lambda_handler(event, context):
@@ -35,15 +36,17 @@ def lambda_handler(event, context):
     try:
         response = preferences_table.get_item(Key={'friendId': friend_id})
         preferences = response.get('Item', {})
-        heart_rate_threshold = preferences.get('heartRateThreshold', DEFAULT_HEART_RATE_THRESHOLD)
-        stress_level_threshold = preferences.get('stressLevelThreshold', DEFAULT_STRESS_LEVEL_THRESHOLD)
+        max_heart_rate = preferences.get('maxHeartRate', DEFAULT_MAX_HEART_RATE)
+        min_heart_rate = preferences.get('minHeartRate', DEFAULT_MIN_HEART_RATE)
+        max_stress_level = preferences.get('maxStressLevel', DEFAULT_MAX_STRESS_LEVEL)
         print(f"Loaded preferences for {friend_id}: heartRateThreshold={heart_rate_threshold}, stressLevelThreshold={stress_level_threshold}")
 
     except Exception as e:
         print(f"Error loading preferences for {friend_id}: {str(e)}")
-        heart_rate_threshold = DEFAULT_HEART_RATE_THRESHOLD
-        stress_level_threshold = DEFAULT_STRESS_LEVEL_THRESHOLD
-        
+        max_heart_rate = DEFAULT_MAX_HEART_RATE
+        min_heart_rate = DEFAULT_MIN_HEART_RATE
+        max_stress_level = DEFAULT_MAX_STRESS_LEVEL
+
     # Save wearable data to DynamoDB
     table = dynamodb.Table(DATA_TABLE_NAME)
     table.put_item(
@@ -58,10 +61,15 @@ def lambda_handler(event, context):
     print("Wearable data saved to DynamoDB")
 
     # Check for alert condition
-    if heart_rate > heart_rate_threshold or stress_level > stress_level_threshold or fall_detected:
+    if (heart_rate is not None and (heart_rate > max_heart_rate or heart_rate < min_heart_rate)) or \
+       (stress_level is not None and stress_level > max_stress_level) or \
+       fall_detected:
+
         message = f'🚨 ALERT from wearable for Friend {friend_id}!\n'
-        message += f'Heart Rate: {heart_rate} (Threshold: {heart_rate_threshold})\n'
-        message += f'Stress Level: {stress_level} (Threshold: {stress_level_threshold})\n'
+        if heart_rate is not None:
+            message += f'Heart Rate: {heart_rate} (Max: {max_heart_rate}, Min: {min_heart_rate})\n'
+        if stress_level is not None:
+            message += f'Stress Level: {stress_level} (Max: {max_stress_level})\n'
         message += f'Fall Detected: {fall_detected}'
 
         sns.publish(
