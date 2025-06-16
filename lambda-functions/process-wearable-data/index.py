@@ -22,7 +22,7 @@ def lambda_handler(event, context):
     print("Received wearable event:", json.dumps(event))
 
     # Parse request body (from API Gateway POST or IOT)
-    body = json.loads(event['body'])
+    body = event
 
     # Extract fields
     friend_id = body.get('friendId')
