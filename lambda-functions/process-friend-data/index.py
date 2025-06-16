@@ -11,7 +11,7 @@ sns = boto3.client('sns')
 # Environment variables
 DYNAMO_TABLE_NAME = os.environ.get('DYNAMO_TABLE_NAME', 'FriendStatus')
 PREFERENCES_TABLE_NAME = os.environ.get('PREFERENCES_TABLE_NAME', 'UserPreferences')
-SNS_TOPIC_ARN = os.environ.get('SNS_TOPIC_ARN', 'pulseAlerts')
+SNS_TOPIC_ARN = os.environ.get('SNS_TOPIC_ARN')
 
 # Defaults thresholds
 DEFAULT_MAX_DISTANCE_APART = 250 # meters
