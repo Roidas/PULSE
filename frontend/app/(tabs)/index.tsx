@@ -46,8 +46,8 @@ export default function HomeScreen() {
           'https://il4ddhep71.execute-api.us-east-2.amazonaws.com/default/getDistanceBetweenFriends',
           {
             params: {
-              friendId1: 'felix', // Replace with logged-in user
-              friendId2: 'david',  // Replace with test friend
+              friendId1: 'felix', 
+              friendId2: 'david',  
             },
           }
         );
@@ -116,7 +116,7 @@ export default function HomeScreen() {
         )}
         {latitude !== null && longitude !== null && (
           <ThemedText>
-            📡 GPS: {latitude.toFixed(5)}, {longitude.toFixed(5)}
+            📡 GPS: {Math.abs(latitude).toFixed(5)}° {latitude >= 0 ? 'N' : 'S'}, {Math.abs(longitude).toFixed(5)}° {longitude >= 0 ? 'E' : 'W'}
           </ThemedText>
         )}
         <ThemedText>🕒 Last Update: {lastUpdated}</ThemedText>
