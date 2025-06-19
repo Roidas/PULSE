@@ -1,4 +1,4 @@
-//Main screen showing real-time metrics
+// Main screen showing real-time metrics
 import { Image } from 'expo-image';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { getStyles } from '@/constants/styles';
@@ -11,43 +11,53 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
 export default function HomeScreen() {
-  //light/dark mode)
+  // Detect light/dark mode
   const colorScheme = useColorScheme();
   const styles = getStyles(colorScheme ?? 'light');
 
-  //App state: live user vitals and last update timestamp
+  // State: vitals and distance between friends
   const [heartRate, setHeartRate] = useState<number | null>(null);
   const [stressLevel, setStressLevel] = useState<number | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string>('Just now');
 
-  //Fetch data from backend Lambda every minute
+  // Fetch both vitals and distance every 60s
   useEffect(() => {
-    const fetchUserStatus = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(
+        // 1. Fetch user vitals
+        const statusResponse = await axios.get(
           'https://eo8mje0kkf.execute-api.us-east-2.amazonaws.com/default/getUserStatus'
         );
 
-        // Destructure the backend response
-        const { heartRate, stressLevel, distanceFromFriends, updatedAt } = response.data;
-
+        const { heartRate, stressLevel, updatedAt } = statusResponse.data;
         setHeartRate(heartRate);
         setStressLevel(stressLevel);
-        setDistance(distanceFromFriends);
         setLastUpdated(updatedAt || new Date().toLocaleTimeString());
+
+        // 2. Fetch distance between two friends (replace with real userIds)
+        const distanceResponse = await axios.get(
+          'https://il4ddhep71.execute-api.us-east-2.amazonaws.com/default/getDistanceBetweenFriends',
+          {
+            params: {
+              friendId1: 'felix', // Replace with logged-in user
+              friendId2: 'david',  // Replace with test friend
+            },
+          }
+        );
+
+        setDistance(distanceResponse.data.distance);
       } catch (error) {
-        console.error('Failed to fetch user status:', error);
+        console.error('Failed to fetch user status or distance:', error);
       }
     };
 
-    //Initial and interval-based updates
-    fetchUserStatus();
-    const interval = setInterval(fetchUserStatus, 60000);
-    return () => clearInterval(interval);
+    fetchData(); // Initial call
+    const interval = setInterval(fetchData, 60000); // Refresh every 60s
+    return () => clearInterval(interval); // Cleanup
   }, []);
 
-  //UI layout using custom components with parallax and themed styles
+  // Render scrollable, themed view
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -58,13 +68,13 @@ export default function HomeScreen() {
         />
       }>
       
-      {/* Header section with wave emoji */}
+      {/* Title */}
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome!</ThemedText>
         <HelloWave />
       </ThemedView>
 
-      {/* Realtime user metrics */}
+      {/* Vitals Display */}
       <ThemedView style={styles.statusBlock}>
         <ThemedText type="subtitle">User Status</ThemedText>
         {heartRate !== null && (
@@ -74,7 +84,7 @@ export default function HomeScreen() {
           <ThemedText>😰 Stress Level: {stressLevel}%</ThemedText>
         )}
         {distance !== null && (
-          <ThemedText>📍 Distance from Friends: {distance} m</ThemedText>
+          <ThemedText>📍 Distance from Friend: {distance.toFixed(1)} m</ThemedText>
         )}
         <ThemedText>🕒 Last Update: {lastUpdated}</ThemedText>
       </ThemedView>
