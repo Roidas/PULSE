@@ -101,9 +101,10 @@ export default function HomeScreen() {
         <HelloWave />
       </ThemedView>
 
-      {/* Vitals Display */}
+      {/* Status Block */}
       <ThemedView style={styles.statusBlock}>
         <ThemedText type="subtitle">User Status</ThemedText>
+
         {heartRate !== null && (
           <ThemedText>❤️ Heart Rate: {heartRate} bpm</ThemedText>
         )}
@@ -112,6 +113,11 @@ export default function HomeScreen() {
         )}
         {distance !== null && (
           <ThemedText>📍 Distance from Friend: {distance.toFixed(1)} m</ThemedText>
+        )}
+        {latitude !== null && longitude !== null && (
+          <ThemedText>
+            📡 GPS: {latitude.toFixed(5)}, {longitude.toFixed(5)}
+          </ThemedText>
         )}
         <ThemedText>🕒 Last Update: {lastUpdated}</ThemedText>
       </ThemedView>
