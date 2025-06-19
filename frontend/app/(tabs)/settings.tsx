@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, Alert, ScrollView, Platform } from 'react-native';
 import axios from 'axios';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { getStyles } from '@/constants/styles';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 export default function SettingsScreen() {
   // Hooks
@@ -30,7 +32,7 @@ export default function SettingsScreen() {
           countdownBeforeNotify: countdown ? parseInt(countdown) : undefined,
         }
       );
-      Alert.alert('Success', response.data.message);
+      Alert.alert('Success', 'Preferences saved successfully.');
     } catch (error) {
       console.error(error);
       Alert.alert('Error', 'Failed to save preferences.');
@@ -39,17 +41,25 @@ export default function SettingsScreen() {
 
   // JSX UI
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Edit Preferences</Text>
-
-      <TextInput placeholder="Friend ID" value={friendId} onChangeText={setFriendId} style={styles.input} />
-      <TextInput placeholder="Max Heart Rate" value={maxHR} onChangeText={setMaxHR} style={styles.input} keyboardType="numeric" />
-      <TextInput placeholder="Min Heart Rate" value={minHR} onChangeText={setMinHR} style={styles.input} keyboardType="numeric" />
-      <TextInput placeholder="Max Stress Level" value={maxStress} onChangeText={setMaxStress} style={styles.input} keyboardType="numeric" />
-      <TextInput placeholder="Max Distance Apart" value={maxDistance} onChangeText={setMaxDistance} style={styles.input} keyboardType="numeric" />
-      <TextInput placeholder="Countdown Before Notify (sec)" value={countdown} onChangeText={setCountdown} style={styles.input} keyboardType="numeric" />
-
-      <Button title="Save Preferences" onPress={handleSave} />
-    </ScrollView>
-  );
-}
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.title}>Edit Preferences</Text>
+  
+        <TextInput placeholder="Friend ID" value={friendId} onChangeText={setFriendId} style={styles.input} />
+        <TextInput placeholder="Max Heart Rate" value={maxHR} onChangeText={setMaxHR} style={styles.input} keyboardType="numeric" />
+        <TextInput placeholder="Min Heart Rate" value={minHR} onChangeText={setMinHR} style={styles.input} keyboardType="numeric" />
+        <TextInput placeholder="Max Stress Level" value={maxStress} onChangeText={setMaxStress} style={styles.input} keyboardType="numeric" />
+        <TextInput placeholder="Max Distance Apart" value={maxDistance} onChangeText={setMaxDistance} style={styles.input} keyboardType="numeric" />
+        <TextInput placeholder="Countdown Before Notify (sec)" value={countdown} onChangeText={setCountdown} style={styles.input} keyboardType="numeric" />
+  
+        <Button
+          title="Save Preferences"
+          onPress={handleSave}
+        />
+      </ScrollView>
+    </SafeAreaView>
+  )};
