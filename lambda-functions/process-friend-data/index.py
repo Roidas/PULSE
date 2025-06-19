@@ -26,10 +26,13 @@ def lambda_handler(event, context):
 
     # Extract fields
     friend_id = body.get('friendId')
-    gps = body.get('gps')
+    latitude = body.get('latitude')
+    longitude = body.get('longitude')
     sos_pressed = body.get('sos', False)
     distance_apart = body.get('distanceFromFriends', 0)
     timestamp = datetime.utcnow().isoformat() #Gets current time in UTC
+
+    gps = f"{latitude},{longitude}" if latitude and longitude else "unknown"
 
     # Lookup UserPreferences 
     preferences_table = dynamodb.Table(PREFERENCES_TABLE_NAME)
@@ -47,12 +50,14 @@ def lambda_handler(event, context):
     # Save to DynamoDB
     table = dynamodb.Table(DYNAMO_TABLE_NAME)
     table.put_item(
-    Item={
-        'friendId': friend_id,
-        'timestamp': timestamp,
-        'gps': gps,
-        'sos': sos_pressed,
-        'distanceFromFriends': distance_apart
+        Item={
+            'friendId': friend_id,
+            'timestamp': timestamp,
+            'latitude': latitude,
+            'longitude': longitude,
+            'gps': gps,
+            'sos': sos_pressed,
+            'distanceFromFriends': distance_apart
         }
     ) 
     print("Friend data saved to DynamoDB") #Debug helper
