@@ -4,6 +4,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { getStyles } from '@/constants/styles';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import * as Location from 'expo-location';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -20,6 +21,11 @@ export default function HomeScreen() {
   const [stressLevel, setStressLevel] = useState<number | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string>('Just now');
+
+  // States for location
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+
 
   // Fetch both vitals and distance every 60s
   useEffect(() => {
@@ -51,10 +57,31 @@ export default function HomeScreen() {
         console.error('Failed to fetch user status or distance:', error);
       }
     };
+    // Get users current location
+    const fetchLocation = async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.warn('Location permission not granted');
+          return;
+        }
 
-    fetchData(); // Initial call
-    const interval = setInterval(fetchData, 60000); // Refresh every 60s
-    return () => clearInterval(interval); // Cleanup
+        const location = await Location.getCurrentPositionAsync({});
+        setLatitude(location.coords.latitude);
+        setLongitude(location.coords.longitude);
+      } catch (error) {
+        console.error('Error fetching location:', error);
+      }
+    };
+
+    fetchData();        // Load metrics
+    fetchLocation();    // Load GPS
+    const interval = setInterval(() => {
+      fetchData();
+      fetchLocation();
+    }, 60000); // Every 60s
+
+    return () => clearInterval(interval);
   }, []);
 
   // Render scrollable, themed view
