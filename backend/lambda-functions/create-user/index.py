@@ -8,6 +8,7 @@ import random
 dynamodb = boto3.resource('dynamodb')
 USERS_TABLE_NAME = os.environ.get('USERS_TABLE_NAME', 'Users')
 
+# Generate random numbers after their id to add uniqueness
 def generate_user_id(first_name, last_name):
     return f"{first_name}{last_name}_{random.randint(1000, 9999)}"
 
