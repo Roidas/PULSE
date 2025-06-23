@@ -9,33 +9,54 @@ import random
 dynamodb = boto3.resource('dynamodb')
 USERS_TABLE_NAME = os.environ.get('USERS_TABLE_NAME', 'Users')
 
-# Generate random numbers after their id to add uniqueness
 def generate_user_id(first_name, last_name):
+    """Generates a unique user ID"""
     return f"{first_name}{last_name}_{random.randint(1000, 9999)}"
 
+def build_response(status_code, body_dict):
+    """Helper to include CORS headers and JSON body"""
+    return {
+        'statusCode': status_code,
+        'headers': {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+        },
+        'body': json.dumps(body_dict)
+    }
+
 def lambda_handler(event, context):
-    print("Received event:", json.dumps(event))  # Debug
+    method = event.get("requestContext", {}).get("http", {}).get("method")
+    
+    if method == "OPTIONS":
+        return build_response(200, {})
+
+    print("Received event:", json.dumps(event))  # Helpful for debugging
 
     try:
+        if 'body' not in event or not event['body']:
+            return build_response(400, {'error': 'Empty request body'})
+
         body = json.loads(event['body'])
 
-        first_name = body.get('firstName')
-        last_name = body.get('lastName')
-        email = body.get('email')
-        phone = body.get('phone')
-        password = body.get('password')
+        required_fields = ['firstName', 'lastName', 'email', 'phone', 'password']
+        missing_fields = [f for f in required_fields if not body.get(f)]
 
-        if not first_name or not last_name or not email or not phone or not password:
-            return {
-                'statusCode': 400,
-                'body': json.dumps({'error': 'Missing required fields'})
-            }
+        if missing_fields:
+            return build_response(400, {'error': f"Missing required fields: {', '.join(missing_fields)}"})
 
-        #Hash password
+        first_name = body['firstName']
+        last_name = body['lastName']
+        email = body['email']
+        phone = body['phone']
+        password = body['password']
+
+        # Hash password
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         user_id = generate_user_id(first_name, last_name)
         created_at = datetime.utcnow().isoformat()
 
+        # Write to DynamoDB
         table = dynamodb.Table(USERS_TABLE_NAME)
         table.put_item(Item={
             'userId': user_id,
@@ -47,16 +68,10 @@ def lambda_handler(event, context):
             'createdAt': created_at
         })
 
-        print(f"User {user_id} created successfully.")
+        print(f"[SUCCESS] User {user_id} created")
 
-        return {
-            'statusCode': 200,
-            'body': json.dumps({'message': 'User created', 'userId': user_id})
-        }
+        return build_response(200, {'message': 'User created', 'userId': user_id})
 
     except Exception as e:
-        print("Error:", str(e))
-        return {
-            'statusCode': 500,
-            'body': json.dumps({'error': 'Internal server error'})
-        }
+        print("[ERROR]", str(e))
+        return build_response(500, {'error': 'Internal server error'})
