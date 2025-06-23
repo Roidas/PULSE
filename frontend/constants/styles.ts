@@ -57,4 +57,64 @@ export const getStyles = (colorScheme: 'light' | 'dark') =>
       paddingBottom: Platform.OS === 'ios' ? 20 : 10,
       backgroundColor: Colors[colorScheme].background,
     },
+        authContainer: {
+      padding: 24,
+      flex: 1,
+      justifyContent: 'center',
+      backgroundColor: Colors[colorScheme].background,
+    },
+    authTitle: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      marginBottom: 24,
+      color: Colors[colorScheme].text,
+      textAlign: 'center',
+    },
+    authInput: {
+      height: 50,
+      borderWidth: 1,
+      borderColor: Colors[colorScheme].icon,
+      borderRadius: 8,
+      paddingHorizontal: 16,
+      fontSize: 16,
+      color: Colors[colorScheme].text,
+      backgroundColor: Colors[colorScheme].card,
+      marginBottom: 16,
+    },
+    authButton: {
+      backgroundColor: Colors[colorScheme].tint,
+      paddingVertical: 14,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginTop: 8,
+    },
+    authButtonText: {
+      color: Colors[colorScheme].background,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    authLinkText: {
+      marginTop: 12,
+      textAlign: 'center',
+      color: Colors[colorScheme].text,
+      fontSize: 14,
+    },
+    authLinkHighlight: {
+      color: Colors[colorScheme].tint,
+      fontWeight: '600',
+    },
+    button: {
+      backgroundColor: Colors[colorScheme].tint,
+      paddingVertical: 14,
+      borderRadius: 8,
+      alignItems: 'center',
+      marginTop: 8,
+    },
+    buttonText: {
+      color: Colors[colorScheme].background,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+
+    
   });
