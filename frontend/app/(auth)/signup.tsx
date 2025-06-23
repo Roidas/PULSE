@@ -61,7 +61,7 @@ export default function SignupScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView
-        contentContainerStyle={styles.container}
+         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -104,6 +104,13 @@ export default function SignupScreen() {
         <TouchableOpacity style={styles.button} onPress={handleSignup}>
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
+          <Text style={{ color: '#007BFF', marginTop: 10, textAlign: 'center' }}>
+            Already have an account? Return to login
+          </Text>
+        </TouchableOpacity>
+
       </ScrollView>
     </SafeAreaView>
   );

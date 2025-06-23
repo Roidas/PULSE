@@ -41,7 +41,7 @@ export default function loginScreen(){
     return (
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView
-          contentContainerStyle={styles.container}
+          contentContainerStyle={[styles.container, { justifyContent: 'center', flexGrow: 1 }]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -68,7 +68,7 @@ export default function loginScreen(){
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
-            <Text style={{ color: '#007BFF', marginTop: 10, textAlign: 'center' }}>
+            <Text style={{ color: '#007BFF', marginTop: 20, textAlign: 'center' }}>
               Don't have an account? Sign up
             </Text>
           </TouchableOpacity>
