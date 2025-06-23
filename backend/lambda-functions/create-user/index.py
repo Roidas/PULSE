@@ -1,3 +1,4 @@
+import crypt
 import json
 import boto3
 import os
@@ -22,13 +23,16 @@ def lambda_handler(event, context):
         last_name = body.get('lastName')
         email = body.get('email')
         phone = body.get('phone')
+        password = body.get('password')
 
-        if not first_name or not last_name or not email:
+        if not first_name or not last_name or not email or not phone or not password:
             return {
                 'statusCode': 400,
                 'body': json.dumps({'error': 'Missing required fields: firstName, lastName, or email'})
             }
 
+        #Hash password
+        hashed_password = crypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         user_id = generate_user_id(first_name, last_name)
         created_at = datetime.utcnow().isoformat()
 
@@ -39,6 +43,7 @@ def lambda_handler(event, context):
             'lastName': last_name,
             'email': email,
             'phone': phone,
+            'password': hashed_password,
             'createdAt': created_at
         })
 

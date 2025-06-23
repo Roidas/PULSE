@@ -20,6 +20,7 @@ export default function SignupScreen() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [password, setPasswrod] = useState('');
 
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
