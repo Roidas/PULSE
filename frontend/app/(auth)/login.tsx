@@ -1,5 +1,5 @@
 import React, { use, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { getStyles } from '@/constants/styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -39,7 +39,12 @@ export default function loginScreen(){
     };
     
     return (
-        <View style={styles.container}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
           <Text style={styles.title}>Login</Text>
     
           <TextInput
@@ -67,8 +72,7 @@ export default function loginScreen(){
               Don't have an account? Sign up
             </Text>
           </TouchableOpacity>
-
-
-        </View>
+          </ScrollView>
+        </SafeAreaView>
       );
     }
