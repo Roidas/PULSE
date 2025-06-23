@@ -20,7 +20,7 @@ export default function SignupScreen() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [password, setPasswrod] = useState('');
+  const [password, setPassword] = useState('');
 
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
@@ -28,7 +28,7 @@ export default function SignupScreen() {
 
   // Handles the sign-up process
   const handleSignup = async () => {
-    if (!firstName || !lastName || !email || !phone) {
+    if (!firstName || !lastName || !email || !phone || !password) {
       Alert.alert('Missing fields', 'Please fill in all required fields.');
       return;
     }
@@ -40,6 +40,7 @@ export default function SignupScreen() {
         lastName,
         email,
         phone,
+        password
       });
 
       // Successful
@@ -86,6 +87,13 @@ export default function SignupScreen() {
         onChangeText={setPhone}
         style={styles.input}
         keyboardType="phone-pad"
+      />
+      <TextInput
+      placeholder="Password"
+      value={password}
+      onChangeText={setPassword}
+      style={styles.input}
+      secureTextEntry
       />
 
       <TouchableOpacity style={styles.button} onPress={handleSignup}>
