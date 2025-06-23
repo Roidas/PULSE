@@ -61,6 +61,14 @@ export default function loginScreen(){
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
+            <Text style={{ color: '#007BFF', marginTop: 10, textAlign: 'center' }}>
+              Don't have an account? Sign up
+            </Text>
+          </TouchableOpacity>
+
+
         </View>
       );
     }
