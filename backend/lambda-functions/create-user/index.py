@@ -13,6 +13,7 @@ def generate_user_id(first_name, last_name):
     """Generates a unique user ID"""
     return f"{first_name}{last_name}_{random.randint(1000, 9999)}"
 
+
 def build_response(status_code, body_dict):
     """Helper to include CORS headers and JSON body"""
     return {
