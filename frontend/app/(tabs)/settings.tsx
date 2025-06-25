@@ -118,7 +118,7 @@ export default function SettingsScreen() {
         {/* Logout button at the bottom in red to indicate critical action */}
         <TouchableOpacity
           onPress={handleLogout}
-          style={[styles.button, { marginTop: 40, backgroundColor: '#e74c3c' }]}
+          style={[styles.button, { marginTop: 500, backgroundColor: '#e74c3c' }]}
         >
           <Text style={styles.buttonText}>Logout</Text>
         </TouchableOpacity>
