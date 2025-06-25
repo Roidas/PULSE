@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 
 // Hook for light/dark mode styling
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -21,6 +21,7 @@ export default function SignupScreen() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
@@ -33,8 +34,11 @@ export default function SignupScreen() {
       return;
     }
 
+    //Start loading
+    setLoading(true);
+
     try {
-      // Send POST request to your AWS Lambda endpoint 
+      // Send POST request to AWS Lambda endpoint 
       const response = await axios.post(API_URL, {
         firstName,
         lastName,
@@ -55,6 +59,8 @@ export default function SignupScreen() {
     } catch (error) {
       console.error('Signup error:', error);
       Alert.alert('Error', 'Could not sign up. Please try again later.');
+    } finally {
+      setLoading(false); //stop loading
     }
   };
 
@@ -100,6 +106,18 @@ export default function SignupScreen() {
         style={styles.input}
         secureTextEntry
         />
+
+        {loading ? (
+          <ActivityIndicator size="large" color="#007BFF" style={{ marginTop: 20 }} />
+        ) : (
+          <TouchableOpacity
+            style={[styles.button, loading && { opacity: 0.6 }]}
+            onPress={handleSignup}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>Sign Up</Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity style={styles.button} onPress={handleSignup}>
           <Text style={styles.buttonText}>Sign Up</Text>
