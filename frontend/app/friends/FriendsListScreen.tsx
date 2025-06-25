@@ -25,7 +25,7 @@ const FriendsListScreen = () => {
           setUserId(id);
 
           // Call Lambda to get accepted friends
-          const res = await axios.get('https://your-api-url/getAcceptedFriends', {
+          const res = await axios.get('https://ajcmjtr313.execute-api.us-east-2.amazonaws.com/default/getAcceptedFriends', {
             params: { userId: id },
           });
 
