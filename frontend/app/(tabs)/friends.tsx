@@ -27,7 +27,15 @@ export default function FriendsTabScreen() {
         const res = await axios.get('https://ajcmjtr313.execute-api.us-east-2.amazonaws.com/default/getAcceptedFriends', {
           params: { userId: id },
         });
-        setFriends(res.data);
+        // Deduplicate friends by friendId
+        const uniqueMap = new Map();
+        res.data.forEach((friend: any) => {
+          if (!uniqueMap.has(friend.friendId)) {
+            uniqueMap.set(friend.friendId, friend);
+          }
+        });
+
+        setFriends(Array.from(uniqueMap.values()));
       } catch (err) {
         Alert.alert('Error', 'Failed to load friends list.');
         console.error(err);
@@ -39,11 +47,13 @@ export default function FriendsTabScreen() {
   }, []);
 
   // Render a friend card
-  const renderFriend = ({ item }: { item: any }) => (
+   const renderFriend = ({ item }: { item: any }) => (
     <View style={styles.card}>
-      <Text style={styles.buttonText}>👤 {item.friendId}</Text>
+      <Text style={{ fontSize: 16, fontWeight: '600', color: styles.title.color }}>
+        👤 {item.friendId}
+      </Text>
       {item.addedAt && (
-        <Text style={{ color: '#ccc', fontSize: 12, marginTop: 4 }}>
+        <Text style={{ fontSize: 13, marginTop: 4, color: styles.input.borderColor }}>
           Added: {new Date(item.addedAt).toLocaleDateString()}
         </Text>
       )}

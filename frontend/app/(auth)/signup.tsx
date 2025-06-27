@@ -42,7 +42,7 @@ export default function SignupScreen() {
       const response = await axios.post(API_URL, {
         firstName,
         lastName,
-        email,
+        email: email.toLowerCase().trim(),
         phone,
         password
       });

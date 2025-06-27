@@ -13,6 +13,7 @@ export default function loginScreen(){
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     
+    
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const styles = getStyles(colorScheme);
@@ -24,7 +25,7 @@ export default function loginScreen(){
         }
         setLoading(true); //Start loading
         try{
-            const response = await axios.post(LOGIN_URL, {email, password});
+            const response = await axios.post(LOGIN_URL, {email: email.toLowerCase().trim(), password});
 
             if (response.status === 200 && response.data.userId) {
                 await AsyncStorage.setItem('userId', response.data.userId);

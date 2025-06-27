@@ -5,6 +5,7 @@ import { getStyles } from '@/constants/styles';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import * as Location from 'expo-location';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -26,10 +27,15 @@ export default function HomeScreen() {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
 
+  //User ID
+  const [userId, setUserId] = useState<string | null>(null);
 
   // Fetch both vitals and distance every 60s
   useEffect(() => {
     const fetchData = async () => {
+      const id = await AsyncStorage.getItem('userId');
+      if (id) setUserId(id);
+
       try {
         // 1. Fetch user vitals
         const statusResponse = await axios.get(
@@ -99,6 +105,11 @@ export default function HomeScreen() {
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome!</ThemedText>
         <HelloWave />
+        {userId && (
+        <ThemedText style={{ fontSize: 12, opacity: 0.6 }}>
+          User ID: {userId}
+        </ThemedText>
+        )}
       </ThemedView>
 
       {/* Status Block */}
