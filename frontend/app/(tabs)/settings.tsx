@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, Alert, ScrollView, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,10 +24,47 @@ export default function SettingsScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const styles = getStyles(colorScheme);
 
+  // Load from AsyncStorage first, fallback to defaults
+  useEffect(() => {
+    const loadInitialValues = async () => {
+      const userId = await AsyncStorage.getItem('userId');
+      if (userId) setFriendId(userId);
+
+      const stored = await AsyncStorage.getItem('userPreferences');
+      if (stored) {
+        const prefs = JSON.parse(stored);
+        setMaxHR(prefs.maxHR ?? '180');
+        setMinHR(prefs.minHR ?? '60');
+        setMaxStress(prefs.maxStress ?? '70');
+        setMaxDistance(prefs.maxDistance ?? '250');
+        setCountdown(prefs.countdown ?? '600');
+      } else {
+        // No stored preferences? Use defaults
+        setMaxHR('180');
+        setMinHR('60');
+        setMaxStress('70');
+        setMaxDistance('250');
+        setCountdown('600');
+      }
+    };
+
+    loadInitialValues();
+  }, []);
+
+
   // Sends preferences to AWS Lambda via API Gateway
   const handleSave = async () => {
+    const newPrefs = {
+      maxHR,
+      minHR,
+      maxStress,
+      maxDistance,
+      countdown,
+    };
+
     try {
-      const response = await axios.post(
+      // Save to AWS
+      await axios.post(
         'https://y5cvvdtgx6.execute-api.us-east-2.amazonaws.com/default/setUserPreferences',
         {
           friendId,
@@ -38,12 +75,19 @@ export default function SettingsScreen() {
           countdownBeforeNotify: countdown ? parseInt(countdown) : undefined,
         }
       );
+
+      // Save locally 
+      await AsyncStorage.setItem('userPreferences', JSON.stringify(newPrefs));
+
       Alert.alert('Success', 'Preferences saved successfully.');
     } catch (error) {
       console.error(error);
       Alert.alert('Error', 'Failed to save preferences.');
     }
   };
+  
+
+  //-----LOGOUT BUTTON-----
 
   // Clears stored user ID and navigates back to login screen
   const handleLogout = async () => {
@@ -68,12 +112,12 @@ export default function SettingsScreen() {
         {/* Preferences Form (conditionally shown) */}
         {showPreferences && (
           <>
-            <TextInput
-              placeholder="Friend ID"
-              value={friendId}
-              onChangeText={setFriendId}
-              style={styles.input}
-            />
+            <View style={[styles.input, { justifyContent: 'center' }]}>
+              <Text style={{ fontSize: 16, color: '#555' }}>
+                User ID: <Text style={{ fontWeight: 'bold' }}>{friendId}</Text>
+              </Text>
+            </View>
+
             <TextInput
               placeholder="Max Heart Rate"
               value={maxHR}
