@@ -8,9 +8,9 @@ dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.environ.get('DYNAMO_TABLE_NAME', 'FriendStatus'))
 
 def lambda_handler(event, context):
-    print("Received event:", event)
+    print("Received event:", json.dumps(event))
 
-    # Extract query string parameter
+    # Expect "friendId" to match the partition key in your DynamoDB table
     friend_id = event.get("queryStringParameters", {}).get("friendId")
 
     if not friend_id:
@@ -20,9 +20,10 @@ def lambda_handler(event, context):
         }
 
     try:
+        # Query using 'friendId' — must match table schema
         response = table.query(
             KeyConditionExpression=Key('friendId').eq(friend_id),
-            ScanIndexForward=False,  # get latest item first
+            ScanIndexForward=False,  # Get latest item first
             Limit=1
         )
 
@@ -46,8 +47,8 @@ def lambda_handler(event, context):
         }
 
     except Exception as e:
-        print("Error:", str(e))
+        print("Error during DynamoDB query:", str(e))
         return {
             "statusCode": 500,
-            "body": json.dumps({"error": "Server error"})
+            "body": json.dumps({"error": "Server error", "details": str(e)})
         }

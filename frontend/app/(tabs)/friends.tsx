@@ -27,6 +27,7 @@ export default function FriendsTabScreen() {
         const res = await axios.get('https://ajcmjtr313.execute-api.us-east-2.amazonaws.com/default/getAcceptedFriends', {
           params: { userId: id },
         });
+
         // Deduplicate friends by friendId
         const uniqueMap = new Map();
         res.data.forEach((friend: any) => {
@@ -46,9 +47,21 @@ export default function FriendsTabScreen() {
     fetchUserData();
   }, []);
 
+  // Called when user selects a friend to track distance from
+  const handleSelectFriend = async (friendId: string) => {
+    try {
+      console.log("Friend selected:", friendId);
+
+      await AsyncStorage.setItem('selectedFriend', friendId); // Store selected friend persistently
+      Alert.alert('Friend Selected', `You'll now see distance from ${friendId} on the Home screen.`);
+    } catch (err) {
+      console.error('Failed to store selected friend:', err);
+    }
+  };
+
   // Render a friend card
-   const renderFriend = ({ item }: { item: any }) => (
-    <View style={styles.card}>
+  const renderFriend = ({ item }: { item: any }) => (
+    <TouchableOpacity onPress={() => handleSelectFriend(item.friendId)} style={styles.card}>
       <Text style={{ fontSize: 16, fontWeight: '600', color: styles.title.color }}>
         👤 {item.friendId}
       </Text>
@@ -57,7 +70,7 @@ export default function FriendsTabScreen() {
           Added: {new Date(item.addedAt).toLocaleDateString()}
         </Text>
       )}
-    </View>
+    </TouchableOpacity>
   );
 
   // Show loading spinner
@@ -73,7 +86,7 @@ export default function FriendsTabScreen() {
       </View>
 
       {friends.length === 0 ? (
-        <Text style={{ color: '#aaa', textAlign: 'center' }}>No friends yet 😢</Text>
+        <Text style={{ color: '#aaa', textAlign: 'center' }}>No friends yet</Text>
       ) : (
         <FlatList
           data={friends}
