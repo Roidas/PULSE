@@ -47,37 +47,9 @@ export default function HomeScreen() {
     }, [])
   );
 
-  // Re-fetch distance from friend when either ID changes
+  // Fetch user vitals, GPS and trigger full location update chain every 60s
   useEffect(() => {
-    const fetchDistance = async () => {
-      if (userId && selectedFriend && selectedFriend !== userId) {
-        try {
-          const response = await axios.get(
-            'https://il4ddhep71.execute-api.us-east-2.amazonaws.com/default/getDistanceBetweenFriends',
-            {
-              params: {
-                friendId1: userId,
-                friendId2: selectedFriend,
-              },
-            }
-          );
-          console.log("✅ getDistanceBetweenFriends response:", response.data);
-          setDistance(response.data.distance);
-        } catch (error: any) {
-          console.error('❌ Error calling getDistanceBetweenFriends:', error.response?.data || error.message);
-          setDistance(null);
-        }
-      } else {
-        setDistance(null);
-      }
-    };
-
-    fetchDistance();
-  }, [userId, selectedFriend]);
-
-  // Fetch user vitals and GPS every 60 seconds
-  useEffect(() => {
-    const fetchStatusAndLocation = async () => {
+    const updateStatusAndLocation = async () => {
       if (!userId) return;
 
       // 1. Fetch heart rate and stress level
@@ -99,7 +71,7 @@ export default function HomeScreen() {
         console.error('❌ Error calling getUserStatus:', statusError.response?.data || statusError.message);
       }
 
-      // 2. Get current device location
+      // 2. Get fresh location
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         console.warn('⚠️ Location permission not granted');
@@ -107,14 +79,57 @@ export default function HomeScreen() {
       }
 
       const location = await Location.getCurrentPositionAsync({});
-      setLatitude(location.coords.latitude);
-      setLongitude(location.coords.longitude);
+      const { latitude, longitude } = location.coords;
+      setLatitude(latitude);
+      setLongitude(longitude);
+
+      // 3. Fetch updated distance from friend
+      let actualDistance = 0;
+      if (userId && selectedFriend && selectedFriend !== userId) {
+        try {
+          const response = await axios.get(
+            'https://il4ddhep71.execute-api.us-east-2.amazonaws.com/default/getDistanceBetweenFriends',
+            {
+              params: {
+                friendId1: userId,
+                friendId2: selectedFriend,
+              },
+            }
+          );
+          console.log("✅ getDistanceBetweenFriends response:", response.data);
+          actualDistance = response.data.distance;
+          setDistance(actualDistance);
+        } catch (error: any) {
+          console.error('❌ Error calling getDistanceBetweenFriends:', error.response?.data || error.message);
+          setDistance(null);
+        }
+      } else {
+        setDistance(null);
+      }
+
+      // 4. Send GPS + actual distance to DynamoDB via Lambda
+      try {
+        console.log("📤 Sending updated location to DynamoDB...");
+        await axios.post(
+          'https://2nrsyr6ln7.execute-api.us-east-2.amazonaws.com/default/processFriendData',
+          {
+            friendId: userId,
+            latitude,
+            longitude,
+            distanceFromFriends: actualDistance,
+            sos: false
+          }
+        );
+        console.log("✅ GPS update sent successfully");
+      } catch (uploadError: any) {
+        console.error('❌ Failed to update GPS to DynamoDB:', uploadError.response?.data || uploadError.message);
+      }
     };
 
-    fetchStatusAndLocation(); // run once
-    const interval = setInterval(fetchStatusAndLocation, 60000); // run every 60 sec
-    return () => clearInterval(interval); // cleanup
-  }, [userId]);
+    updateStatusAndLocation();
+    const interval = setInterval(updateStatusAndLocation, 60000);
+    return () => clearInterval(interval);
+  }, [userId, selectedFriend]);
 
   return (
     <ParallaxScrollView
