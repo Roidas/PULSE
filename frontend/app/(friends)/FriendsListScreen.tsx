@@ -52,17 +52,16 @@ const FriendsListScreen = () => {
   );
 
   // Show loading spinner
-  if (loading) return <ActivityIndicator style={{ marginTop: 20 }} />;
+  if (loading) return <ActivityIndicator style={{ marginTop: 300 }} />;
 
   // If no friends, display fallback
   if (!friends.length) {
-    return (
-      <View style={styles.centered}>
-        <Text>No friends yet 😢</Text>
-      </View>
-    );
-  }
-
+  return (
+    <View style={[styles.centered, { marginTop: 300 }]}>
+      <Text style={{ color: '#aaa' }}>No friends yet</Text>
+    </View>
+  );
+}
   // Main list of accepted friends
   return (
     <FlatList

@@ -115,6 +115,18 @@ export const getStyles = (colorScheme: 'light' | 'dark') =>
       fontSize: 16,
       fontWeight: '600',
     },
+    //Used for friends page
+    card: {
+      backgroundColor: Colors[colorScheme].card ?? '#1e1e1e',
+      padding: 12,
+      borderRadius: 8,
+      marginBottom: 10,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 3,
+      elevation: 2,
+    },
 
     
   });
