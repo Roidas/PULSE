@@ -52,7 +52,7 @@ export default function SignupScreen() {
         const userId = response.data.userId;
         await AsyncStorage.setItem('userId', userId);
         Alert.alert('Success', 'User created successfully!');
-        router.replace('/(tabs)'); //Switch to index.tsx
+        router.replace('/(tabs)'); 
       } else {
         Alert.alert('Signup failed', 'Something went wrong. Please try again.');
       }
