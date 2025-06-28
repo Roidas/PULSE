@@ -12,11 +12,23 @@ sns = boto3.client('sns')
 # Environment variables
 DYNAMO_TABLE_NAME = os.environ.get('DYNAMO_TABLE_NAME', 'FriendStatus')
 PREFERENCES_TABLE_NAME = os.environ.get('PREFERENCES_TABLE_NAME', 'UserPreferences')
-SNS_TOPIC_ARN = os.environ.get('SNS_TOPIC_ARN')
+USERS_TABLE_NAME = os.environ.get('USERS_TABLE_NAME', 'Users')
 
 # Default safety thresholds
 DEFAULT_MAX_DISTANCE_APART = 250  # meters
 DEFAULT_COUNTDOWN_BEFORE_NOTIFY = 600  # seconds
+
+# 🔎 Helper: Get phone number by userId
+def get_user_phone(friend_id):
+    try:
+        users_table = dynamodb.Table(USERS_TABLE_NAME)
+        response = users_table.get_item(Key={'userId': friend_id})
+        user = response.get('Item')
+        if user and 'phone' in user:
+            return f"+1{user['phone']}"  # Assumes phone is stored as 10-digit string
+    except Exception as e:
+        print(f"❌ Failed to fetch phone for {friend_id}: {e}")
+    return None
 
 def lambda_handler(event, context):
     print("Received event:", json.dumps(event))  # Debugging incoming event
@@ -68,30 +80,35 @@ def lambda_handler(event, context):
             'body': json.dumps({'error': 'Failed to save data to DynamoDB', 'details': str(e)})
         }
 
-    # 🚨 SOS Button was pressed
-    if sos_pressed:
-        message = f'🚨 ALERT: Friend {friend_id} pressed SOS button!\nGPS: {gps}'
-        sns.publish(TopicArn=SNS_TOPIC_ARN, Message=message, Subject='Friend Safety Alert')
-        print("📣 SOS alert sent!")
+    # Get phone number of this user
+    phone_number = get_user_phone(friend_id)
+    if not phone_number:
+        print("⚠️ No phone number found, skipping SMS.")
+    else:
+        # 🚨 SOS Button was pressed
+        if sos_pressed:
+            message = f'🚨 ALERT: Friend {friend_id} pressed SOS button!\nGPS: {gps}'
+            sns.publish(PhoneNumber=phone_number, Message=message)
+            print(f"📣 SOS alert sent to {phone_number}!")
 
-    # 📍 Friend is too far away
-    elif distance_apart > max_distance_apart:
-        warning_message = (
-            f'⚠️ WARNING: You ({friend_id}) are more than {max_distance_apart}m from your friends.\n'
-            f'GPS: {gps}\nRespond within {countdown_before_notify} seconds.'
-        )
-        sns.publish(TopicArn=SNS_TOPIC_ARN, Message=warning_message, Subject='Distance Warning')
-        print("📩 Distance warning sent.")
+        # 📍 Friend is too far away
+        elif distance_apart > max_distance_apart:
+            warning_message = (
+                f'⚠️ WARNING: You ({friend_id}) are more than {max_distance_apart}m from your friends.\n'
+                f'GPS: {gps}\nRespond within {countdown_before_notify} seconds.'
+            )
+            sns.publish(PhoneNumber=phone_number, Message=warning_message)
+            print(f"📩 Distance warning sent to {phone_number}.")
 
-        print(f"⏳ Waiting {countdown_before_notify} seconds before alerting others...")
-        time.sleep(min(countdown_before_notify, 10))  # simulate time for demo
+            print(f"⏳ Waiting {countdown_before_notify} seconds before alerting others...")
+            time.sleep(min(countdown_before_notify, 10))  # simulate time for demo
 
-        alert_message = (
-            f'🚨 ALERT: {friend_id} is still far from their friends after {countdown_before_notify} seconds.\n'
-            f'GPS: {gps}\nPlease check on them.'
-        )
-        sns.publish(TopicArn=SNS_TOPIC_ARN, Message=alert_message, Subject='Friend Distance Alert')
-        print("📣 Final alert sent to others.")
+            alert_message = (
+                f'🚨 ALERT: {friend_id} is still far from their friends after {countdown_before_notify} seconds.\n'
+                f'GPS: {gps}\nPlease check on them.'
+            )
+            sns.publish(PhoneNumber=phone_number, Message=alert_message)
+            print(f"📣 Final alert sent to {phone_number}.")
 
     return {
         'statusCode': 200,

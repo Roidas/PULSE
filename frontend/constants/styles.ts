@@ -127,6 +127,12 @@ export const getStyles = (colorScheme: 'light' | 'dark') =>
       shadowRadius: 3,
       elevation: 2,
     },
+    label: {
+      fontSize: 16,
+      marginTop: 12,
+      marginBottom: 4,
+      color: colorScheme === 'dark' ? '#ccc' : '#333',
+    },
 
     
   });

@@ -98,7 +98,7 @@ export default function SettingsScreen() {
           </Text>
         </TouchableOpacity>
 
-        {/* Prefererrnces Form */}
+        {/* Preferences Form */}
         {showPreferences && (
           <>
             <View style={[styles.input, { justifyContent: 'center' }]}>
@@ -107,18 +107,57 @@ export default function SettingsScreen() {
               </Text>
             </View>
 
-            <TextInput placeholder="Max Heart Rate" value={maxHR} onChangeText={setMaxHR} style={styles.input} keyboardType="numeric" />
-            <TextInput placeholder="Min Heart Rate" value={minHR} onChangeText={setMinHR} style={styles.input} keyboardType="numeric" />
-            <TextInput placeholder="Max Stress Level" value={maxStress} onChangeText={setMaxStress} style={styles.input} keyboardType="numeric" />
-            <TextInput placeholder="Max Distance Apart" value={maxDistance} onChangeText={setMaxDistance} style={styles.input} keyboardType="numeric" />
-            <TextInput placeholder="Countdown Before Notify (sec)" value={countdown} onChangeText={setCountdown} style={styles.input} keyboardType="numeric" />
+            <View>
+              <Text style={styles.label}>Max Heart Rate (bpm)</Text>
+              <TextInput
+                value={maxHR}
+                onChangeText={setMaxHR}
+                style={styles.input}
+                keyboardType="numeric"
+              />
+
+              <Text style={styles.label}>Min Heart Rate (bpm)</Text>
+              <TextInput
+                value={minHR}
+                onChangeText={setMinHR}
+                style={styles.input}
+                keyboardType="numeric"
+              />
+
+              <Text style={styles.label}>Max Stress Level (%)</Text>
+              <TextInput
+                value={maxStress}
+                onChangeText={setMaxStress}
+                style={styles.input}
+                keyboardType="numeric"
+              />
+
+              <Text style={styles.label}>Max Distance from Friend (meters)</Text>
+              <TextInput
+                value={maxDistance}
+                onChangeText={setMaxDistance}
+                style={styles.input}
+                keyboardType="numeric"
+              />
+
+              <Text style={styles.label}>Countdown Before Alert (seconds)</Text>
+              <TextInput
+                value={countdown}
+                onChangeText={setCountdown}
+                style={styles.input}
+                keyboardType="numeric"
+              />
+            </View>
 
             <Button title="Save Preferences" onPress={handleSave} />
           </>
         )}
 
         {/* Logout Button */}
-        <TouchableOpacity onPress={handleLogout} style={[styles.button, { marginTop: 500, backgroundColor: '#e74c3c' }]}>
+        <TouchableOpacity
+          onPress={handleLogout}
+          style={[styles.button, { marginTop: 500, backgroundColor: '#e74c3c' }]}
+        >
           <Text style={styles.buttonText}>Logout</Text>
         </TouchableOpacity>
       </ScrollView>
