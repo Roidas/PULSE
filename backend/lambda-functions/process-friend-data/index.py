@@ -46,7 +46,7 @@ def lambda_handler(event, context):
 
     gps = f"{latitude},{longitude}" if latitude and longitude else "unknown"
 
-    # 🛠 Load user-specific preferences or fallback to defaults
+    # Load user-specific preferences or fallback to defaults
     try:
         preferences_table = dynamodb.Table(PREFERENCES_TABLE_NAME)
         response = preferences_table.get_item(Key={'friendId': friend_id})
