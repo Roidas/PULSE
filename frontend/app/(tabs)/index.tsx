@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { getStyles } from '@/constants/styles';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import axios from 'axios';
 import * as Location from 'expo-location';
@@ -12,6 +12,8 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { TouchableOpacity } from 'react-native';
+
+import MapView, { Marker } from 'react-native-maps';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -27,31 +29,37 @@ export default function HomeScreen() {
   const [userId, setUserId] = useState<string | null>(null);
   const [selectedFriend, setSelectedFriend] = useState<string | null>(null);
 
+  // Friend location state for friend marker
+  const [friendLatitude, setFriendLatitude] = useState<number | null>(null);
+  const [friendLongitude, setFriendLongitude] = useState<number | null>(null);
+
+  const mapRef = useRef<MapView | null>(null);
+
   // Utility: Format ISO timestamp using local timezone (rounded to hour + minute)
   const formatUpdateTime = (isoString: string) => {
-  if (!isoString) return 'just now';
+    if (!isoString) return 'just now';
 
-  const updatedDate = new Date(isoString);
+    const updatedDate = new Date(isoString);
 
-  // Check if date is invalid
-  if (isNaN(updatedDate.getTime())) {
-    console.warn('⚠️ Invalid date received:', isoString);
-    return 'just now';
-  }
+    // Check if date is invalid
+    if (isNaN(updatedDate.getTime())) {
+      console.warn('⚠️ Invalid date received:', isoString);
+      return 'just now';
+    }
 
-  const now = new Date();
-  const diffMs = now.getTime() - updatedDate.getTime();
-  const diffSec = Math.floor(diffMs / 1000);
+    const now = new Date();
+    const diffMs = now.getTime() - updatedDate.getTime();
+    const diffSec = Math.floor(diffMs / 1000);
 
-  if (diffSec < 60) {
-    return 'just now';
-  }
+    if (diffSec < 60) {
+      return 'just now';
+    }
 
-  return new Intl.DateTimeFormat(undefined, {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(updatedDate);
-};
+    return new Intl.DateTimeFormat(undefined, {
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(updatedDate);
+  };
 
   // Reload userId and selectedFriend from AsyncStorage every time screen gains focus
   useFocusEffect(
@@ -125,8 +133,17 @@ export default function HomeScreen() {
 
           actualDistance = response.data.distance;
           setDistance(actualDistance);
+
+          // Option B: Fetch friend's coordinates separately
+          const friendResponse = await axios.get(
+            'https://eo8mje0kkf.execute-api.us-east-2.amazonaws.com/default/getUserStatus',
+            { params: { friendId: selectedFriend } }
+          );
+          const { latitude: fLat, longitude: fLng } = friendResponse.data;
+          setFriendLatitude(fLat);
+          setFriendLongitude(fLng);
         } catch (error: any) {
-          console.error('❌ Error calling getDistanceBetweenFriends:', error.response?.data || error.message);
+          console.error('❌ Error calling getDistanceBetweenFriends or fetching friend location:', error.response?.data || error.message);
           setDistance(null);
         }
       } else {
@@ -222,6 +239,7 @@ export default function HomeScreen() {
             {Math.abs(longitude).toFixed(5)}° {longitude >= 0 ? 'E' : 'W'}
           </ThemedText>
         )}
+
         {/* Last update */}
         <ThemedText>🕒 Updated: {formatUpdateTime(lastUpdated)}</ThemedText>
 
@@ -247,7 +265,55 @@ export default function HomeScreen() {
         >
           <ThemedText style={styles.sosText}>S.O.S</ThemedText>
         </TouchableOpacity>
-       </ThemedView>
+
+        {/* Mini Map */}
+        {latitude && longitude && (
+          <MapView
+            ref={mapRef}
+            style={{
+              width: '100%',
+              height: 200,
+              marginTop: 16,
+              borderRadius: 12,
+            }}
+            initialRegion={{
+              latitude,
+              longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            }}
+            onMapReady={() => {
+              if (friendLatitude && friendLongitude && latitude && longitude) {
+                mapRef.current?.fitToCoordinates(
+                  [
+                    { latitude, longitude },
+                    { latitude: friendLatitude, longitude: friendLongitude },
+                  ],
+                  {
+                    edgePadding: { top: 50, bottom: 50, left: 50, right: 50 },
+                    animated: true,
+                  }
+                );
+              }
+            }}
+            showsUserLocation={true}
+          >
+            <Marker
+              coordinate={{ latitude, longitude }}
+              title="You"
+              pinColor="blue"
+            />
+
+            {friendLatitude && friendLongitude && (
+              <Marker
+                coordinate={{ latitude: friendLatitude, longitude: friendLongitude }}
+                title={selectedFriend ?? "Friend"}
+                pinColor="red"
+              />
+            )}
+          </MapView>
+        )}
+      </ThemedView>
     </ParallaxScrollView>
   );
 }
