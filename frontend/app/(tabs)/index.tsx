@@ -11,6 +11,7 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { TouchableOpacity } from 'react-native';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -25,6 +26,32 @@ export default function HomeScreen() {
   const [longitude, setLongitude] = useState<number | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [selectedFriend, setSelectedFriend] = useState<string | null>(null);
+
+  // Utility: Format ISO timestamp using local timezone (rounded to hour + minute)
+  const formatUpdateTime = (isoString: string) => {
+  if (!isoString) return 'just now';
+
+  const updatedDate = new Date(isoString);
+
+  // Check if date is invalid
+  if (isNaN(updatedDate.getTime())) {
+    console.warn('⚠️ Invalid date received:', isoString);
+    return 'just now';
+  }
+
+  const now = new Date();
+  const diffMs = now.getTime() - updatedDate.getTime();
+  const diffSec = Math.floor(diffMs / 1000);
+
+  if (diffSec < 60) {
+    return 'just now';
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(updatedDate);
+};
 
   // Reload userId and selectedFriend from AsyncStorage every time screen gains focus
   useFocusEffect(
@@ -57,16 +84,14 @@ export default function HomeScreen() {
         console.log("📡 Calling getUserStatus with:", userId);
         const statusResponse = await axios.get(
           'https://eo8mje0kkf.execute-api.us-east-2.amazonaws.com/default/getUserStatus',
-          {
-            params: { friendId: userId },
-          }
+          { params: { friendId: userId } }
         );
         console.log("✅ getUserStatus response:", statusResponse.data);
-        const { heartRate, stressLevel, updatedAt } = statusResponse.data;
 
+        const { heartRate, stressLevel, updatedAt } = statusResponse.data;
         setHeartRate(heartRate);
         setStressLevel(stressLevel);
-        setLastUpdated(updatedAt || new Date().toLocaleTimeString());
+        setLastUpdated(updatedAt || new Date().toISOString());
       } catch (statusError: any) {
         console.error('❌ Error calling getUserStatus:', statusError.response?.data || statusError.message);
       }
@@ -97,6 +122,7 @@ export default function HomeScreen() {
             }
           );
           console.log("✅ getDistanceBetweenFriends response:", response.data);
+
           actualDistance = response.data.distance;
           setDistance(actualDistance);
         } catch (error: any) {
@@ -183,7 +209,7 @@ export default function HomeScreen() {
 
           return (
             <ThemedText>
-              📍 Distance from {selectedFriend}: {distance.toFixed(1)} m
+              📍 {selectedFriend} is {distance.toFixed(1)}m away
             </ThemedText>
           );
         })()}
@@ -191,14 +217,37 @@ export default function HomeScreen() {
         {/* GPS Location */}
         {latitude !== null && longitude !== null && (
           <ThemedText>
-            📡 GPS: {Math.abs(latitude).toFixed(5)}° {latitude >= 0 ? 'N' : 'S'},{' '}
+            📡 GPS: {Math.abs(latitude).toFixed(5)}° {latitude >= 0 ? 'N' : 'S'},
+            {' '}
             {Math.abs(longitude).toFixed(5)}° {longitude >= 0 ? 'E' : 'W'}
           </ThemedText>
         )}
-
         {/* Last update */}
-        <ThemedText>🕒 Last Update: {lastUpdated}</ThemedText>
-      </ThemedView>
+        <ThemedText>🕒 Updated: {formatUpdateTime(lastUpdated)}</ThemedText>
+
+        {/* SOS Button */}
+        <TouchableOpacity
+          style={styles.sosButton}
+          onPress={async () => {
+            try {
+              console.log('🆘 SOS button pressed');
+              await axios.post('https://2nrsyr6ln7.execute-api.us-east-2.amazonaws.com/default/processFriendData', {
+                friendId: userId,
+                latitude,
+                longitude,
+                distanceFromFriends: distance ?? 0,
+                sos: true,
+              });
+              alert('🚨 SOS alert sent!');
+            } catch (error) {
+              console.error('❌ Failed to send SOS alert:', error);
+              alert('Failed to send SOS alert.');
+            }
+          }}
+        >
+          <ThemedText style={styles.sosText}>S.O.S</ThemedText>
+        </TouchableOpacity>
+       </ThemedView>
     </ParallaxScrollView>
   );
 }

@@ -133,6 +133,20 @@ export const getStyles = (colorScheme: 'light' | 'dark') =>
       marginBottom: 4,
       color: colorScheme === 'dark' ? '#ccc' : '#333',
     },
+    // SOS button
+    sosButton: {
+      marginTop: 12,
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 12,
+      backgroundColor: '#ff4d4f',
+      alignSelf: 'flex-start',
+    },
+    sosText: {
+      color: 'white',
+      fontWeight: 'bold',
+      fontSize: 14,
+    },
 
     
   });
