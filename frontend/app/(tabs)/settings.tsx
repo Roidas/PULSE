@@ -149,7 +149,10 @@ export default function SettingsScreen() {
               />
             </View>
 
-            <Button title="Save Preferences" onPress={handleSave} />
+            <TouchableOpacity onPress={handleSave} style={[styles.button, { marginTop: 24 }]}>
+              <Text style={styles.buttonText}>Save Preferences</Text>
+            </TouchableOpacity>
+
           </>
         )}
 
