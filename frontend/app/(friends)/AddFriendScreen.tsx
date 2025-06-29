@@ -80,7 +80,7 @@ export default function AddFriendScreen() {
   // Renders each individual pending request with an Accept button
   const renderRequest = ({ item }: { item: Request }) => (
     <View style={styles.card}>
-      <Text style={styles.buttonText}>👤 {item.userId} sent you a request</Text>
+      <Text style={styles.label}>👤 {item.userId} sent you a request</Text>
       <TouchableOpacity style={styles.button} onPress={() => acceptRequest(item.userId)}>
         <Text style={styles.buttonText}>Accept</Text>
       </TouchableOpacity>

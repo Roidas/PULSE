@@ -147,6 +147,20 @@ export const getStyles = (colorScheme: 'light' | 'dark') =>
       fontWeight: 'bold',
       fontSize: 14,
     },
+    requestCard: {
+      padding: 12,
+      borderRadius: 8,
+      marginBottom: 12,
+    },
+    requestName: {
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    requestMeta: {
+      fontSize: 12,
+      marginTop: 4,
+    },
+
 
     
   });

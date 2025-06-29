@@ -11,6 +11,8 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { getStyles } from '@/constants/styles';
+import { Colors } from '@/constants/Colors';
+
 
 // Type for a pending friend request
 type Request = {
@@ -24,7 +26,8 @@ const PendingRequestsScreen = () => {
   const [userId, setUserId] = useState<string | null>(null);   // Current user's ID
   const [requests, setRequests] = useState<Request[]>([]);     // Pending friend requests
   const [loading, setLoading] = useState(true);                // Loading state while fetching data
-  const colorScheme = useColorScheme() ?? 'light';             // Theme hook (light/dark mode)
+  const colorScheme = useColorScheme() ?? 'light';   
+  const theme = Colors[colorScheme];          // Theme hook (light/dark mode)
   const styles = getStyles(colorScheme);                       // Theme-based styles
 
   // Fetch pending friend requests on component mount
@@ -76,22 +79,17 @@ const PendingRequestsScreen = () => {
     }
   };
 
-  // UI for each request card
+  // Render each request card
   const renderRequest = ({ item }: { item: Request }) => (
-    <View
-      style={{
-        backgroundColor: '#222',
-        padding: 12,
-        borderRadius: 8,
-        marginBottom: 10,
-      }}
-    >
-      <Text style={{ color: 'white', fontSize: 16 }}>
-        👤 {item.userId} sent you a request
+    <View style={[styles.requestCard, { backgroundColor: theme.card }]}>
+      <Text style={[styles.requestName, { color: theme.text }]}>
+        👤 {item.userId}
       </Text>
-      <TouchableOpacity style={styles.button} onPress={() => acceptRequest(item.userId)}>
-        <Text style={styles.buttonText}>Accept</Text>
-      </TouchableOpacity>
+      {item.addedAt && (
+        <Text style={[styles.requestMeta, { color: theme.icon }]}>
+          Sent: {new Date(item.addedAt).toLocaleDateString()}
+        </Text>
+      )}
     </View>
   );
 

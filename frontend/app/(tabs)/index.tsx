@@ -263,7 +263,7 @@ export default function HomeScreen() {
             }
           }}
         >
-          <ThemedText style={styles.sosText}>S.O.S</ThemedText>
+          <ThemedText style={styles.sosText}>Send S.O.S</ThemedText>
         </TouchableOpacity>
 
         {/* Mini Map */}

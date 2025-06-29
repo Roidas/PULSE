@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 // Type for each friend record
 type Friend = {
@@ -17,19 +19,19 @@ const FriendsListScreen = () => {
   const [loading, setLoading] = useState(true);                   // Loading state
 
   // Fetch user ID and friend list on component mount
-  useEffect(() => {
+  useFocusEffect(
+  useCallback(() => {
     const loadUserAndFriends = async () => {
       try {
         const id = await AsyncStorage.getItem('userId');
         if (id) {
           setUserId(id);
 
-          // Call Lambda to get accepted friends
           const res = await axios.get('https://ajcmjtr313.execute-api.us-east-2.amazonaws.com/default/getAcceptedFriends', {
             params: { userId: id },
           });
 
-          setFriends(res.data); // Store in state
+          setFriends(res.data);
         }
       } catch (err) {
         console.error('Failed to fetch friends:', err);
@@ -39,7 +41,8 @@ const FriendsListScreen = () => {
     };
 
     loadUserAndFriends();
-  }, []);
+  }, [])
+);
 
   // Renders each friend item in the list
   const renderItem = ({ item }: { item: Friend }) => (
