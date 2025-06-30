@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="getAcceptedFriends">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/backend/lambda-functions/lambdas-for-friend-logic/get-accepted-friends/getAcceptedFriends.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

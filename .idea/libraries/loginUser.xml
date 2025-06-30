@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="loginUser">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/backend/lambda-functions/lambdas-for-user-authentication/login-user/loginUser.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

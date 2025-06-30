@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="add-friend-request">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/backend/lambda-functions/lambdas-for-friend-logic/add-friend-request/add-friend-request.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

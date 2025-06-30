@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="createUser">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/backend/lambda-functions/lambdas-for-user-authentication/create-user/createUser.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

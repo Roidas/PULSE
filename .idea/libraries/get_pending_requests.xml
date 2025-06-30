@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="get-pending-requests">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/backend/lambda-functions/lambdas-for-friend-logic/get-pending-requests/get-pending-requests.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
